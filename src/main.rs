@@ -1,3 +1,7 @@
+mod tracker;
+use tracker::Tracker;
+
 fn main() {
-    println!("Hello, world!");
+    let tracker = Tracker::new("127.0.0.1".to_owned(), 8080);
+    tracker.start();
 }
