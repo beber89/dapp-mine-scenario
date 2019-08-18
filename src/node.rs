@@ -13,6 +13,7 @@ pub enum TcpNetErr {
 pub struct Node {
   to_port: u32,
   to_ip_address: String,
+  recv: Option<fn(&str)->()>,
 }
 
 impl Node {
@@ -20,7 +21,12 @@ impl Node {
     Node {
       to_port: port,
       to_ip_address: ip,
+      recv: None
     }
+  }
+
+  pub fn registerReadCallback(&mut self, f: fn(&str)->()) {
+    self.recv = Some(f);
   }
 
   pub fn connect(&self) -> Result<(), TcpNetErr> {
@@ -34,6 +40,7 @@ impl Node {
               PollOpt::edge()).unwrap();
               let msg = b"Hello!";
               stream.write(msg).unwrap();
+              let cb = self.recv;
             // let mut thread_stream = stream.try_clone().expect("Can not clone stream");
             thread::spawn(move || {
               let mut events = Events::with_capacity(1024);
@@ -53,7 +60,10 @@ impl Node {
                                             Ok(v) => v,
                                             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
                                     };
-                                    println!("result: {}", s);
+                                    match cb {
+                                      Some(f) => f(s),
+                                      None => println!("result: {}", s)
+                                    };
                                 }, 
                                 Err(e) => println!("Failed to receive data: {}", e)
                               }
