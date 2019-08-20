@@ -1,9 +1,9 @@
 use mio::*;
 use mio::net::{TcpStream};
 use std::thread;
+
 use std::io::{Read, Write};
 use std::str;
-
 
 #[derive(Debug)]
 pub enum TcpNetErr {
@@ -25,7 +25,7 @@ impl Node {
     }
   }
 
-  pub fn registerReadCallback(&mut self, f: fn(&str)->()) {
+  pub fn register_read_callback(&mut self, f: fn(&str)->()) {
     self.recv = Some(f);
   }
 
@@ -77,21 +77,6 @@ impl Node {
                 }
                 });
                 return Ok(());
-
-            // let mut data = [0 as u8; 6]; // using 6 byte buffer
-            // match stream.read_exact(&mut data) {
-            //     Ok(_) => {
-            //         if &data == msg {
-            //             println!("Reply is ok!");
-            //         } else {
-            //             let text = from_utf8(&data).unwrap();
-            //             println!("Unexpected reply: {}", text);
-            //         }
-            //     },
-            //     Err(e) => {
-            //         println!("Failed to receive data: {}", e);
-            //     }
-            // }
         },
         Err(e) => {
             println!("Failed to connect: {}", e);
